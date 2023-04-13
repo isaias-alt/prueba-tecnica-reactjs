@@ -1,36 +1,21 @@
-import { useEffect, useState } from 'react'
 import './App.css'
+import { useCatFact } from './services/hooks/useCatFact'
+import { useCatImage } from './services/hooks/useCatImage'
 
-const DATO_ALEATORIO = 'https://catfact.ninja/fact'
 const PREFIJO_IMAGEN_URL = 'https://cataas.com'
 
 export function App () {
-  const [fact, setFact] = useState()
-  const [imageUrl, setImageUrl] = useState()
+  const { fact, refreshFact } = useCatFact()
+  const { imageUrl } = useCatImage({ fact })
 
-  useEffect(() => {
-    fetch(DATO_ALEATORIO)
-      .then((res) => res.json())
-      .then(data => {
-        const { fact } = data
-        setFact(fact)
-      })
-  }, [])
-
-  useEffect(() => {
-    if (!fact) return
-    const primeraPalabra = fact.split(' ')[0]
-    fetch(`https://cataas.com/cat/says/${primeraPalabra}?size=50&color=red&json=true`)
-      .then((res) => res.json())
-      .then((response) => {
-        const { url } = response
-        setImageUrl(url)
-      })
-  }, [fact])
+  const handleClick = async () => {
+    refreshFact()
+  }
 
   return (
     <main>
       <h1> App de Gatitos</h1>
+      <button onClick={handleClick}> Get new fact </button>
       {fact && <p> {fact} </p>}
       {imageUrl && <img src={`${PREFIJO_IMAGEN_URL}${imageUrl}`} alt={`Imagen estraida de la primera palagra de ${fact}`} />}
     </main>
